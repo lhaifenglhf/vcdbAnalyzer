@@ -1,5 +1,5 @@
 # Author: Haifeng Liu
-# This program is to curate the cyber incident data dowloaded from VCDB
+# This program is to extract the cyber incident data dowloaded from VCDB
 # Input: the file folder of VCDB
 # Output: the csv data file with incident loss
 
@@ -47,7 +47,7 @@ GplotEnumSummary <- function(enumVariable) {
   print(gg)
 }
 
-# Explore the given set of vcdb to summary the statistics of key columns
+# Explore the given set of vcdb to summarize the statistics of key columns
 ExploreVcdbData <- function(vcdb) {
   ## Explore the incidents in vcdb
 
@@ -88,6 +88,12 @@ ExploreVcdbData <- function(vcdb) {
 
 # Load the vcdb data from a file folder
 LoadVcdb <- function(vcdbDir) {
+  # Args:
+  #   vcdbDir: The name of folder which includes all vcdb jason files.
+  #     #
+  # Returns:
+  #   The data table containing all extracted incidents.
+
   # may optionally load a custom json schema file.
   if (interactive()) { # show progress bar if the session is interactive
     vcdb <- json2veris(vcdbDir, progressbar=TRUE)
@@ -99,6 +105,12 @@ LoadVcdb <- function(vcdbDir) {
 
 # Check the column names with specific regular expression
 CheckColNamesWithReg <- function(regExp, vcdb) {
+  # Args:
+  #   regExp: The regular expression that needs to be satisfied for the column names.
+  #   vcdb: the vcdb data table that contains the columns.
+  #     #
+  # Returns:
+  #   The vector of column names that match with the given regular expression
   cNames <- colnames(vcdb)
   targetCols <- c()
   for (cName in cNames) {
@@ -108,10 +120,12 @@ CheckColNamesWithReg <- function(regExp, vcdb) {
       targetCols <- append(targetCols, cName)
     }
   }
+  return(targetCols)
 }
 ####### End of Function definitions ####################################################
 
 # Execution of the program
+
 vcdb.dir <- "../../Github/VCDB/data/json/"
 vcdb <- LoadVcdb(vcdb.dir)
 dim(vcdb)
@@ -130,15 +144,15 @@ confirmedLossDb <- vcdb[impact.overall_amount != "" & security_incident.Confirme
 
 # Construct the list of columns of interest for manupilating data
 #
-targetCols = c("victim.victim_id", "victim.industry", "victim.industry.name", "victim.orgsize.Small", "victim.orgsize.Large",
-               "victim.region",  "victim.revenue.amount", "victim.locations_affected",
-               "impact.overall_amount","impact.loss.amount", "impact.iso_currency_code.USD"
+targetCols = c("victim.victim_id", "victim.industry", "victim.industry.name", "victim.country.US",
+               "victim.orgsize.Small", "victim.orgsize.Large", "victim.region",
+               "victim.locations_affected", "impact.overall_amount","impact.loss.amount"
               )
 cNames <- colnames(vcdb)
 for (cName in cNames) {
 
-  if ((grepl("^victim.employee_count", cName) == TRUE) | (grepl("^victim.country", cName) == TRUE)
-      | (grepl("^imapct.loss.rating", cName) == TRUE)){
+  if ((grepl("^victim.employee_count", cName) == TRUE) | (grepl("^imapct.loss.rating", cName) == TRUE)
+      | (grepl("^impact.iso_currency_code", cName) == TRUE)){
     targetCols <- append(targetCols, cName)
   }
 }
